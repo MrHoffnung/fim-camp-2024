@@ -13,12 +13,11 @@ urlpatterns = [
     path("accounts/", include("django.contrib.auth.urls")),
     path("user/<int:pk>/update/", UserUpdateView.as_view(), name="user_update"),
     path("profile/<str:username>", views.profile_view, name="profile_view"),
+    path("profile/<int:pk>/update", views.ProfileUpdateView.as_view(), name="profile_update"),
     # post management
     path("post/new", PostCreateView.as_view(), name="post_create"),
     path("post/<int:pk>/update/", PostEditView.as_view(), name="post_update"),
     path("post/<int:pk>/delete/", PostDeleteView.as_view(), name="post_delete"),
-    path('create_newsletter/', views.create_newsletter, name='create_newsletter'),
-    path('newsletter_overview/', views.newsletter_overview, name='newsletter_overview'),
-    path('follow/<int:user_id>/', views.follow_user, name='follow_user'),
-    path('unfollow/<int:user_id>/', views.unfollow_user, name='unfollow_user'),
+    path('follow/<int:user_id>/', views.follow_view, name='follow_view'),
+    path('like/<int:post_id>/', views.like_view, name='like_view'),
 ] 

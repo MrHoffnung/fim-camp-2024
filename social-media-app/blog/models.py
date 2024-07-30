@@ -1,32 +1,43 @@
+from typing import Iterable
 from django.contrib.auth.models import User
 from django.db import models
+from PIL import Image
 
 
 class Profile(models.Model):
     user = models.OneToOneField(User, on_delete=models.CASCADE)
     followers = models.ManyToManyField(User, related_name='profile_followers', blank=True)
+    bio = models.TextField(blank=True)
+    birth_date = models.DateField(null=True, blank=True, auto_now=False, auto_now_add=False)
+    profile_image = models.ImageField(upload_to='profile_images', blank=True, null=True)
 
     def __str__(self) -> str:
         return f"{self.user.username}"
+    
+    def save(self, *args, **kwargs) -> None:
+        super().save(*args, **kwargs)
+        if self.profile_image:
+            self._resize_profile_image()
+    
+    def _resize_profile_image(self) -> None:
+        img = Image.open(self.profile_image.path)
+        if img.height > 300 or img.width > 300:
+            output_size = (300, 300)
+            img.thumbnail(output_size)
+            img.save(self.profile_image.path)
+    
+
 
 class Post(models.Model):
     creator = models.ForeignKey(Profile, on_delete=models.CASCADE)
     publication_date = models.DateTimeField("date published", auto_now=True)
     title = models.CharField(max_length=100, default="Ohne Titel")
     content = models.TextField()
+    image = models.ImageField(upload_to='post_images', blank=True, null=True)
+    likes = models.ManyToManyField(User, related_name='post_likes', blank=True)
 
-class NewsletterSubscription(models.Model):
-    user = models.ForeignKey(User, on_delete=models.CASCADE, related_name='subscriptions')
-    subscribed_to = models.ForeignKey(User, on_delete=models.CASCADE, related_name='subscribers')
-
-class Newsletter(models.Model):
-    user = models.ForeignKey(User, on_delete=models.CASCADE)
-    title = models.CharField(max_length=255)
-    content = models.TextField()
-
-class Follow(models.Model):
-    user = models.ForeignKey(User, on_delete=models.CASCADE, related_name='following')
-    followed_user = models.ForeignKey(User, on_delete=models.CASCADE, related_name='followers')
+    def like_count(self) -> int:
+        return self.likes.count()
 
 class Notification(models.Model):
     user = models.ForeignKey(User, on_delete=models.CASCADE)

@@ -13,10 +13,10 @@ from django.urls import reverse, reverse_lazy
 from django.views.generic import CreateView, DeleteView, TemplateView, UpdateView
 from django.shortcuts import get_object_or_404
 
-from blog.forms import UserRegisterForm, NewsletterForm
-from blog.models import Post, Profile, Newsletter, Follow
+from blog.forms import UserRegisterForm
+from blog.models import Post, Profile
 from django.contrib.auth.decorators import login_required
-from .utils import has_user_followed, has_user_subscribed, has_user_liked_post
+from .utils import create_notification
 
 ################################################################################
 # user management
@@ -84,28 +84,12 @@ class PostListView(TemplateView):
         except EmptyPage:
             show_posts = paginator.page(paginator.num_pages)
 
-        # Liste der modifizierten Posts
-        modified_posts = []
-        for post in show_posts.object_list:
-            creator_as_user = post.creator.user
-            post.has_followed = has_user_followed(self.request.user, creator_as_user) if self.request.user.is_authenticated else False
-            modified_posts.append(post)
 
-        # Neue Paginierung mit den modifizierten Posts
-        modified_paginator = Paginator(modified_posts, self.posts_per_page)
-        try:
-            modified_show_posts = modified_paginator.page(page)
-        except PageNotAnInteger:
-            modified_show_posts = modified_paginator.page(1)
-        except EmptyPage:
-            modified_show_posts = modified_paginator.page(modified_paginator.num_pages)
-
-        context["posts"] = modified_show_posts
+        context["posts"] = show_posts
         context["only_followed"] = self.request.GET.get("only_followed", False)
-        context["last_users"] = User.objects.order_by("-date_joined")[:10]
+        context["latest_users"] = User.objects.order_by("-date_joined")[:10]
+        context["latest_posts"] = Post.objects.order_by("-publication_date")[:10]
 
-        # Debugging: Überprüfen Sie den finalen Kontext
-        print(f"Context posts: {context['posts'].object_list}")
         return context
           
 
@@ -122,6 +106,15 @@ class PostListView(TemplateView):
             )
 
         return posts.order_by("-publication_date")
+
+class ProfileUpdateView(LoginRequiredMixin, UpdateView):
+    model = Profile
+    fields = ["bio", "birth_date", "profile_image"]
+    template_name = "blog/user/profile_edit.html"
+
+    def get_success_url(self) -> str:
+        profile: Profile = self.get_object()
+        return reverse("profile_view", kwargs={"username": profile.user.username})
 
 class PostCreateView(LoginRequiredMixin, CreateView):
     model = Post
@@ -147,7 +140,7 @@ class PostDeleteView(LoginRequiredMixin, UserPassesTestMixin, DeleteView):
 
 class PostEditView(LoginRequiredMixin, UserPassesTestMixin, UpdateView):
     model = Post
-    fields = ["title", "content"]
+    fields = ["title", "content", "image"]
     success_url = reverse_lazy("index")
     template_name = "blog/post/edit_post.html"
 
@@ -162,52 +155,40 @@ def profile_view(request, username):
 
     return render(request, 'blog/user/profile.html', {
         'profile': profile,
-        'is_following': has_user_followed(request.user, profile.user),
     })
 
 
+
+
 @login_required
-def create_newsletter(request):
-    if request.method == 'POST':
-        form = NewsletterForm(request.POST)
-        if form.is_valid():
-            newsletter = form.save(commit=False)
-            newsletter.user = request.user
-            newsletter.save()
-            return redirect('newsletter_overview')
+def like_view(request, post_id):
+    post = get_object_or_404(Post, id=post_id)
+    likes = post.likes.all()
+    user = request.user
+    if user in likes:
+        post.likes.remove(request.user)
     else:
-        form = NewsletterForm()
-    return render(request, 'blog/newsletter/create_newsletter.html', {'form': form})
+        post.likes.add(request.user)
+    post.save()
+    return redirect('index')
 
 @login_required
-def newsletter_overview(request):
-    newsletters = Newsletter.objects.filter(user=request.user)
-    return render(request, 'blog/newsletter/newsletter_overview.html', {'newsletters': newsletters})
+def follow_view(request, user_id):
+    profile = get_object_or_404(Profile, id=user_id)
+    followers = profile.followers.all()
+    user = request.user
 
-@login_required
-def follow_user(request, user_id):
-    followed_user = get_object_or_404(User, id=user_id)
-    Follow.objects.create(user=request.user, followed_user=followed_user)
-    username = followed_user.username
+    if user in followers:
+        profile.followers.remove(user)
+    else:
+        profile.followers.add(user)
+    profile.save()
 
     referer = request.META.get('HTTP_REFERER')
 
     if referer.endswith('blog/'):
         return redirect('index')
     elif "profile" in referer:
-        return redirect('profile_view', username=username)
+        return redirect('profile_view', username=user.username)
 
-
-@login_required
-def unfollow_user(request, user_id):
-    followed_user = get_object_or_404(User, id=user_id)
-    Follow.objects.filter(user=request.user, followed_user=followed_user).delete()
-    print(f"Unfollowed {followed_user.username}")
-    username = followed_user.username
-
-    referer = request.META.get('HTTP_REFERER')
-
-    if referer.endswith('blog/'):
-        return redirect('index')
-    elif "profile" in referer:
-        return redirect('profile_view', username=username)
+    

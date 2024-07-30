@@ -32,24 +32,30 @@
                         </li>
                         <li class="nav-item dropdown">
                             <a class="nav-link dropdown-toggle" href="#" id="navbarDropdownPosts" role="button" data-bs-toggle="dropdown" aria-expanded="false">
-                                Beiträge und Newsletter
+                                Posts
                             </a>
                             <ul class="dropdown-menu" aria-labelledby="navbarDropdownPosts">
                                 <li><a class="dropdown-item" href="{% url 'post_create' %}">Neuer Post</a></li>
-                                <li><a class="dropdown-item" href="{% url 'create_newsletter' %}">Neuer Newsletter</a></li>
-                                <li><a class="dropdown-item" href="{% url 'newsletter_overview' %}">Newsletter-Übersicht</a></li>
                             </ul>
                         </li>
+
                         <li class="nav-item dropdown">
-                            <a class="nav-link dropdown-toggle" href="#" id="navbarDropdown" role="button" data-bs-toggle="dropdown" aria-expanded="false">
-                                Benachrichtigungen
+                            <a class="nav-link dropdown-toggle" href="#" id="navbarDropdownPosts" role="button" data-bs-toggle="dropdown" aria-expanded="false">
+                                Profile
                             </a>
-                            <ul class="dropdown-menu" aria-labelledby="navbarDropdown">
-                                {% for notification in user.notifications.all %}
-                                    <li><a class="dropdown-item" href="#">{{ notification.message }}</a></li>
-                                {% empty %}
-                                    <li><a class="dropdown-item" href="#">Keine Benachrichtigungen</a></li>
-                                {% endfor %}
+                            <ul class="dropdown-menu" aria-labelledby="navbarDropdownPosts">
+                                <li><a class="dropdown-item" href="">Dein Profil</a></li>
+                                <li><a class="dropdown-item" href="">Alle Profile</a></li>
+                            </ul>
+                        </li>
+
+                        <li class="nav-item dropdown">
+                            <a class="nav-link dropdown-toggle" href="#" id="navbarDropdownPosts" role="button" data-bs-toggle="dropdown" aria-expanded="false">
+                                Zeitkapseln
+                            </a>
+                            <ul class="dropdown-menu" aria-labelledby="navbarDropdownPosts">
+                                <li><a class="dropdown-item" href="">Zeitkapsel anlegen</a></li>
+                                <li><a class="dropdown-item" href="">Deine Zeitkapseln</a></li>
                             </ul>
                         </li>
                     {% else %}
@@ -67,6 +73,24 @@
                         </li>
                     {% endif %}
                 </ul>
+
+                {% if user.is_authenticated %}
+                    <ul class="navbar-nav mb-2 mb-lg-0">
+                        <li class="nav-item dropdown">
+                            <a class="nav-link dropdown-toggle" href="#" id="navbarDropdown" role="button" data-bs-toggle="dropdown" aria-expanded="false">
+                                Benachrichtigungen
+                            </a>
+                            <ul class="dropdown-menu" aria-labelledby="navbarDropdown">
+                                {% for notification in notifications.all %}
+                                    <li><a class="dropdown-item" href="#">{{ notification.message }}</a></li>
+                                {% empty %}
+                                    <li><a class="dropdown-item" href="#">Keine Benachrichtigungen</a></li>
+                                {% endfor %}
+                            </ul>
+                        </li>
+                    </ul>
+                {% endif %}
+
                 <form class="d-flex mb-0" action="{% url 'index' %}" method="get">
                     <input class="form-control me-2"
                            name="search_query"

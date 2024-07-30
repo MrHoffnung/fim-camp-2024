@@ -1,7 +1,6 @@
 from django import forms
 from django.contrib.auth.forms import UserCreationForm
 from django.contrib.auth.models import User
-from .models import Newsletter
 
 
 class UserRegisterForm(UserCreationForm):
@@ -11,7 +10,3 @@ class UserRegisterForm(UserCreationForm):
         model = User
         fields = ["username", "email", "password1", "password2"]
 
-class NewsletterForm(forms.ModelForm):
-    class Meta:
-        model = Newsletter
-        fields = ['title', 'content']
