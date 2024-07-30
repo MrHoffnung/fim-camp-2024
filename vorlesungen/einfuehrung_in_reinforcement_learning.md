@@ -23,7 +23,7 @@ Für Reinforcement Learning in Videospielen benötigt man:
 - Evtl. Informationen über die letzten n Zeitschritte
 
 1. Agent führt Aktion $a_t ∈ A$ durch
-2. Der Zustand der Umgebung ändert sich durch die Aktion zu $s_t+1 ∈ S$
+2. Der Zustand der Umgebung ändert sich durch die Aktion zu $s_{t+1} ∈ S$
 3. Der Agent bekommt die Bleohnung $r_t$ mitgeteilt
 4. Wenn nötig Wiederholung
 
@@ -35,19 +35,16 @@ Entscheidungen sollten über einen möglichst knappen Zeitraum getroffen werden,
 - Sei S der Zustandsraum und A der Aktionausraum
 - $t: S × A × S$ -> $[0,1]$ ist die Übergangsfunktion als bedingte Wahrscheinlichkeit
 - $r: S × A × S$ -> $R$ ist die Belohnungsfunktion
-- Epsilon ∈ [0,1] ist der "discount factor"
+- $γ ∈ [0,1]$ ist der "discount factor"
 
 ### Policies
-
-BESSER DEFINIEREN
-
-"Skill des Agenten"
-- Deterministisch: pi(s):S->A (z.B.: Schere, Stein, Papier)
-- Stochastisch: $pi(s,a): S×A$ -> [0,1] (z.B.: Rundenbasiertes Spiel mit verschiedenen Optionen)
+Die Policy beim Reinforcement Learning beschreibt die Strategie des Agentens. Es gibt zwei verschiedene Arten von Policies:
+- Deterministisch: $π(s):S$ -> $A$ (z.B.: Schere, Stein, Papier)
+- Stochastisch: $π(s,a): S×A$ -> [0,1] (z.B.: Rundenbasiertes Spiel mit verschiedenen Optionen)
     - Wahrscheinlichkeit von Aktion a in Zustand s
 
 ### Q-Learning
-$Q^pi(s,a)=$ Die erwartete Belohnung, wenn man im Zustand s a ausführt.
+$Q^π(s,a)=$ Die erwartete Belohnung, wenn man im Zustand $s$ $a$ ausführt.
 
 #### Zustandsraum oft riesig
 - Wie definiert man eine Policy für eine komplexe Beobachtung mit vielen Variablen?
@@ -59,23 +56,23 @@ $Q^pi(s,a)=$ Die erwartete Belohnung, wenn man im Zustand s a ausführt.
 - "Hidden Layer" gewichten und korrelieren die Daten
 - "Output Layer" liefer die Ergebnisse der Berechnung
 
-### Deep Q-Learning
+### Deep $Q$-Learning
 - Input Layer: Zustand
 - Hidden Layer: Policy
-- Output Layer Q-Wert für Aktion
+- Output Layer $Q$-Wert für Aktion
 
-Über die Bellmann Gleichung wird der Q-Wert geschätzt.
+Über die Bellmann Gleichung wird der $Q$-Wert geschätzt.
 
 ### Training
-Über die Epsilon (das nicht tolle)-Greedy-Q-Policy:
+Über die $ε$-Greedy-Q-Policy:
 - Mit Wahrscheinlichkeit Epsilon zufällige Aktion
-- Ansonsten bekannte Aktion mit bestem Wert Q
-- Nach jedem Zeitschritt bessere Schätzung des Q-Werts möglich
+- Ansonsten bekannte Aktion mit bestem Wert $Q$
+- Nach jedem Zeitschritt bessere Schätzung des $Q$-Werts möglich
 - Nach jedem Schritt neues Training
 <br>
 **->** Zielgerichtetes durchsuchen von Kombinationen von Aktionen
 
-### Double Deep Q-Learning
+### Double Deep $Q$-Learning
 Stabilisieren der Fehlfunktionen durch zwei verschiedene Netzwerke
 
 ## Zusammenfassung
