@@ -1,0 +1,21 @@
+-> Überprüfen was passiert wenn ein Nutzer nicht sein eigenes Profil betrachtet.
+
+1. Newsletter
+    1. Tabel anlegen (Welcher Nutzer | erhält Newsletter von welchem Nutzer)
+    2. Tabel anlegen (Welcher Benutzer | Titel des Newsletters | Inhalt des Newsletters)
+    3. Create Newsletter View
+    4. Newsletter Übersicht
+
+3. Liking
+    1. Tabel anlegen (Welcher Nutzer | liked welchen Post)
+    2. Tabel anlegen (Welcher Post | hat wie viele Likes) -> Performance
+    3. Like Button hinzufügen 
+    -> Like über /like/<Post-ID>
+
+
+4. Benachrichtigungen 
+    1. Tabel anlegen (Welcher Nutzer | Woher kommt die Benachrichtigung? | Text der Benachrichtigung | Link der Benachrichtigung | Gelesen?)
+    2. Tabel anlegen (Welcher Nutzer )
+    3. Benachrichtigungen werden automatisch bei Posterstellung, Newsletter, Following & Like erstellt
+
+5. Zeitkapsel

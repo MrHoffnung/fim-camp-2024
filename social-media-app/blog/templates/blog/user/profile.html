@@ -1,0 +1,26 @@
+{% extends "blog/base.html" %}
+{% load django_bootstrap5 %}
+{% block content %}
+    <div>
+        <div class="d-flex align-items-center gap-2">
+            <h1>{{ profile.user.username }}</h1>
+        </div>
+        {% if is_following %}
+            <form action="{% url 'unfollow_user' profile.user.id %}" method="post">
+                {% csrf_token %}
+                <button type="submit">Unfollow</button>
+            </form>
+        {% else %}
+            <form action="{% url 'follow_user' profile.user.id %}" method="post">
+                {% csrf_token %}
+                <button type="submit">Follow</button>
+            </form>
+        {% endif %}
+        <div class="d-flex mt-2 gap-1">
+            {% if profile.user == request.user %}
+                <a class="btn btn-primary btn-sm"
+                   href="{% url 'user_update' profile.user.id %}"><i class="fas fa-edit"></i>Nutzername ändern</a>
+            {% endif %}
+        </div>
+    </div>
+{% endblock content %}

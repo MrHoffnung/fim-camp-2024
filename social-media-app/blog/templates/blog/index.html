@@ -1,0 +1,45 @@
+{% extends "blog/base.html" %}
+{% load django_bootstrap5 %}
+{% block content %}
+
+    <style>
+        a {
+            text-decoration: none;
+            margin: 5px;
+            font-size: 20px;
+        }
+    </style>
+
+    <div class="container">
+        <div class="row">
+            <!-- Main content (posts) -->
+            <div class="col-md-8">
+                {% for post in posts %}
+                    {% include "blog/post/post.html" with post=post profile=profile has_followed=post.has_followed %}
+                {% endfor %}
+                <div class="mt-2">
+                    {% if user.is_authenticated and not only_followed %}
+                        <a class="btn btn-primary btn-sm" href="{% url 'index' %}?only_followed=True">Nur Posts von gefolgten Nutzern</a>
+                    {% endif %}
+                </div>
+            </div>
+            <!-- Sidebar (vertical list) -->
+            <div class="col-md-4">
+                <div class="card">
+                    <div class="card-header">
+                        <h5 class="card-title">Our Newscomers</h5>
+                    </div>
+                    <ul class="list-group list-group-flush">
+                        {% for user in last_users %}
+                            <li class="list-group">
+                                <a class="" href="{% url 'profile_view' user.username %}" class="list-group">
+                                    {{ user.username }}
+                                </a>
+                            </li>
+                        {% endfor %}
+                    </ul>
+                </div>
+            </div>
+        </div>
+    </div>
+{% endblock content %}

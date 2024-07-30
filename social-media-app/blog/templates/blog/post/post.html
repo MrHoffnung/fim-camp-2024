@@ -1,0 +1,42 @@
+{% load static %}   
+
+<style>
+    .post {
+        border: 1px solid #ccc;
+        border-radius: 5px;
+    }
+</style>
+
+<div class="card mt-2">
+    <div class="post card-body">
+        <div>
+            <h5 class="card-title">{{ post.title }} </h5>
+            <div class="d-flex align-items-center gap-2">
+                <a href="{% url 'profile_view' post.creator.user.username %}">{{ post.creator.user.username }}</a>
+                <span>{{ post.publication_date }}</span>
+            </div>
+        </div>
+        <p class="card-text">{{ post.content | linebreaks }}</p>
+        <div class="d-flex justify-content-between mt-1 mb1 gap-1 align-items-center">
+            <div>
+                <a href="" class="btn btn-outline-success btn-sm">&#x1F44D; Like</a>
+
+                {% if has_followed %}
+                    {% csrf_token %}
+                    <a href="{% url 'unfollow_user' post.creator.user.id %}" class="btn btn-outline-primary btn-sm">&#x1F465; Unfollow</a>
+                {% else %}
+                    {% csrf_token %}
+                    <a href="{% url 'follow_user' post.creator.user.id %}" class="btn btn-outline-primary btn-sm">&#x1F465; Follow</a>
+                {% endif %}
+                <a href="" class="btn btn-outline-info btn-sm">🔔 Subscribe</a>
+            </div>
+
+            <div>
+                {% if post.creator.user == user %}
+                    <a class="btn btn-primary p-2" href="{% url 'post_update' post.id %}"><i class="fas fa-edit"></i></a>
+                    <a class="btn btn-danger p-2" href="{% url 'post_delete' post.id %}"><i class="fas fa-trash"></i></a>
+                {% endif %}
+            </div>
+        </div>
+    </div>
+</div>

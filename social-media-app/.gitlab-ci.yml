@@ -1,0 +1,81 @@
+---
+workflow:
+  rules:
+    - if: $CI_MERGE_REQUEST_ID  # Execute jobs in merge request context
+    - if: $CI_COMMIT_BRANCH == $CI_DEFAULT_BRANCH
+    - if: $CI_PIPELINE_SOURCE == "web"  # manual run via GitLab UI
+
+stages:
+  - lint
+
+.python-cache: &python-cache
+  cache:
+    key: virtualenv-${PYTHON_VERSION}
+    paths:
+      - .venv/
+
+.python-job-template: &python-job-template
+  image: docker.io/library/python:${PYTHON_VERSION}
+  before_script:
+    - python --version
+    - pip install poetry
+    - poetry --version
+    - poetry config virtualenvs.in-project true
+    - poetry install -v
+  <<: *python-cache
+  variables:
+    PROJECT: src
+  parallel:
+    matrix:
+      - PYTHON_VERSION: ["3.11", "3.12"]
+
+################################################################################
+
+isort:
+  <<: *python-job-template
+  stage: lint
+  needs: []
+  script:
+    - poetry run isort **/*.py -c -v --profile black
+
+black:
+  <<: *python-job-template
+  stage: lint
+  needs: []
+  script:
+    - poetry run black --check .
+
+# Django typing does not work out in a lot of cases
+# mypy:
+#   <<: *python-job-template
+#   stage: lint
+#   allow_failure: true
+#   script:
+#     - poetry run mypy blog
+
+ruff:
+  <<: *python-job-template
+  stage: lint
+  script:
+    - poetry run ruff check .
+
+djlint-format:
+  <<: *python-job-template
+  stage: lint
+  script:
+    - poetry run djlint --check blog/templates/
+
+djlint:
+  <<: *python-job-template
+  stage: lint
+  script:
+    - poetry run djlint blog/templates/
+
+# checked-in `requirements.txt` should be up-to-date with `poetry.lock`
+check-requirements-txt:
+  <<: *python-job-template
+  stage: lint
+  script:
+    - poetry self add poetry-plugin-export
+    - poetry export -f requirements.txt --output requirements.new.txt
+    - diff requirements.txt requirements.new.txt

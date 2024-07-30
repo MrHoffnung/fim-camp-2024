@@ -1,0 +1,38 @@
+{% load static %}
+{% load django_bootstrap5 %}
+{% bootstrap_css %}
+{% bootstrap_javascript %}
+<!DOCTYPE html>
+<html lang="de">
+    <style>
+        body {
+            background-color: #f8f9fa;
+        }
+    </style>
+
+    <head>
+        <meta charset="utf-8">
+        <meta name="description" content="Sommercamp 2024">
+        <meta name="keywords" content="Sommercamp, Uni Passau">
+        <meta name="viewport" content="width=device-width, initial-scale=1">
+        <link rel="shortcut icon"
+              type="image/png"
+              href="{% static 'images/favicon.png' %}">
+        <link href="{% static 'fontawesomefree/css/fontawesome.css' %}"
+              rel="stylesheet"
+              type="text/css">
+        <link href="{% static 'fontawesomefree/css/solid.css' %}"
+              rel="stylesheet"
+              type="text/css">
+        <link href="{% static 'style.css' %}" rel="stylesheet" type="text/css">
+        <title>SommerCamp 2024</title>
+    </head>
+    <body>
+        {% include "blog/header.html" %}
+        {% bootstrap_messages %}
+        <div class="container mt-2">
+            {% block content %}
+            {% endblock content %}
+        </div>
+    </body>
+</html>

@@ -1,0 +1,81 @@
+<header>
+    <style>
+        .navbar {
+            margin-bottom: 20px;
+            background-color: #6a89a7;
+        }
+    </style>
+
+    <nav class="navbar navbar-expand-lg navbar-dark">
+        <div class="container-fluid">
+            <a class="navbar-brand" href="{% url 'index' %}">Binary Buzz</a>
+            <button class="navbar-toggler"
+                    type="button"
+                    data-bs-toggle="collapse"
+                    data-bs-target="#navbarSupportedContent"
+                    aria-controls="navbarSupportedContent"
+                    aria-expanded="false"
+                    aria-label="Toggle navigation">
+                <span class="navbar-toggler-icon"></span>
+            </button>
+            <div class="collapse navbar-collapse" id="navbarSupportedContent">
+                <ul class="navbar-nav me-auto mb-2 mb-lg-0">
+                    {% if user.is_authenticated %}
+                        <li class="nav-item">
+                            <a href="{% url 'profile_view' user.username %}" class="nav-link">{{ user.username }}</a>
+                        </li>
+                        <li class="nav-item">
+                            <a href="{% url 'blog_logout' %}" class="nav-link">
+                                <i class="fas fa-sign-in-alt"></i>
+                                Abmelden
+                            </a>
+                        </li>
+                        <li class="nav-item dropdown">
+                            <a class="nav-link dropdown-toggle" href="#" id="navbarDropdownPosts" role="button" data-bs-toggle="dropdown" aria-expanded="false">
+                                Beiträge und Newsletter
+                            </a>
+                            <ul class="dropdown-menu" aria-labelledby="navbarDropdownPosts">
+                                <li><a class="dropdown-item" href="{% url 'post_create' %}">Neuer Post</a></li>
+                                <li><a class="dropdown-item" href="{% url 'create_newsletter' %}">Neuer Newsletter</a></li>
+                                <li><a class="dropdown-item" href="{% url 'newsletter_overview' %}">Newsletter-Übersicht</a></li>
+                            </ul>
+                        </li>
+                        <li class="nav-item dropdown">
+                            <a class="nav-link dropdown-toggle" href="#" id="navbarDropdown" role="button" data-bs-toggle="dropdown" aria-expanded="false">
+                                Benachrichtigungen
+                            </a>
+                            <ul class="dropdown-menu" aria-labelledby="navbarDropdown">
+                                {% for notification in user.notifications.all %}
+                                    <li><a class="dropdown-item" href="#">{{ notification.message }}</a></li>
+                                {% empty %}
+                                    <li><a class="dropdown-item" href="#">Keine Benachrichtigungen</a></li>
+                                {% endfor %}
+                            </ul>
+                        </li>
+                    {% else %}
+                        <li class="nav-item">
+                            <a href="{% url 'login' %}" class="nav-link">
+                                <i class="fas fa-user-tie"></i>
+                                Anmelden
+                            </a>
+                        </li>
+                        <li class="nav-item">
+                            <a href="{% url 'register' %}" class="nav-link">
+                                <i class="fas fa-sign-in-alt"></i>
+                                Registrieren
+                            </a>
+                        </li>
+                    {% endif %}
+                </ul>
+                <form class="d-flex mb-0" action="{% url 'index' %}" method="get">
+                    <input class="form-control me-2"
+                           name="search_query"
+                           type="search"
+                           placeholder="Suche"
+                           aria-label="Suche">
+                    <button class="btn btn-outline-light" type="submit">Suche</button>
+                </form>
+            </div>
+        </div>
+    </nav>
+</header>
