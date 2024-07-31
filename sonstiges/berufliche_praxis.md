@@ -1,6 +1,6 @@
 # Berufliche Praxis
 - **Schriftführer**: Leo Gall
-- **Zeitraum**: 30.07.2024 | 09:30-11:00
+- **Zeitraum**: 31.07.2024 | 09:30-11:00
 - **"Dozenten"**:
     - **Maxe**: (Doktorand - AI-Software-Tester bei BMW)
     - **Patricia**: (Doktorand - Theoretische Informatik)
