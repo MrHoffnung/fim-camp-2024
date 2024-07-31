@@ -1,37 +1,185 @@
 {% extends "blog/base.html" %}
 {% load django_bootstrap5 %}
 {% block content %}
+
+    <style>
+        .profileImage {
+            width: 150px;
+            height: 150px;
+            border-radius: 100px;
+        }
+
+        .profileContent {
+            background-color: #7da1c5;
+            padding: 40px;
+            border-radius: 15px;
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.5);
+            color: #f8f9fa;
+        }
+
+        .tab {
+            width: 250px;
+            background-color: #59a7b3; /* Custom green color */
+            border: none;
+            color: white;
+        }
+
+        .tab:hover {
+            background-color: #3d6f77;
+        }
+
+        .profileContentTabs {
+            border-bottom: lightgray 1px solid;
+            padding-bottom: 10px;
+        }
+
+        .profileContentText {
+            padding-top: 60px;
+        }
+
+        .profileContentText p {
+            width: 750px;
+            margin-bottom: 20px;
+        }
+
+        h2 {
+            margin-top: 20px;
+        }
+
+        .followButton {
+            padding: 20px 20px 20px 20px;
+        }
+
+        .btn-custom {
+            background-color: #59a7b3; /* Custom green color */
+            border: none;
+            color: white;
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+        }
+
+        .btn-custom:hover {
+            background-color: #3d6f77; /* Darker green on hover */
+        }
+
+        .active {
+            background-color: #7099a1 !important;
+        }
+
+        .active:hover {
+            background-color: #497e88 !important;
+        }
+
+        a {
+            text-decoration: none;
+        }
+
+
+    </style>
+    
     <div>
-        <div class="d-flex align-items-center gap-2">
-            <h1>{{ profile.user.username }}</h1>
+        <div class="d-flex flex-column align-items-center gap-2">
+            <div class="profileHead d-flex">
+                {% if profile.profile_image %}
+                    <img class="profileImage" src="{{ profile.profile_image.url }}" />
+                {% endif %}
 
-            {% if profile.profile_image %}
-                <img src="{{ profile.profile_image.url }}" />
-            {% endif %}
+                <div class="ml-4 d-flex align-items-center justify-content-center">
+                    <h1 style="margin: 30px;">{{ profile.user.username }}</h1>
 
-            <span>{{ profile.user.email }}</span>
-            <span>{{ profile.birth_date }}</span>
-            <h2>Bio</h2>
-            <p>{{ profile.bio }}</p>
+                    {% if profile.user != user and user.is_authenticated %}
+                        {% if user in profile.followers.all %}
+                            <form action="{% url 'follow_view' profile.user.id %}" method="post" style="margin: 30px;">
+                                {% csrf_token %}
+                                <button type="submit" class="btn btn-primary btn-custom followButton">Unfollow</button>
+                            </form>
+                        {% else %}
+                            <form action="{% url 'follow_view' profile.user.id %}" method="post" style="margin: 30px;">
+                                {% csrf_token %}
+                                <button type="submit" class="btn btn-primary btn-custom followButton">Follow</button>
+                            </form>
+                        {% endif %}
+                    {% endif %}
+                </div>
+            </div>
+
+            <div class="profileContent">
+                <div class="profileContentTabs" style="float: left;">
+                    <ul class="list-group list-group-horizontal">
+                        <a href="{% url 'profile_view' profile.user.username %}?tab=bio">
+                            {% if tab == 'bio' %}
+                                <li class="list-group-item active tab">Biographie</li>
+                            {% else %}
+                                <li class="list-group-item tab">Biographie</li>
+                            {% endif %}
+                        </a>
+                        <a href="{% url 'profile_view' profile.user.username %}?tab=posts">
+                            {% if tab == 'posts' %}
+                                <li class="list-group-item active tab">Posts</li>
+                            {% else %}
+                                <li class="list-group-item tab">Posts</li>
+                            {% endif %}
+                        </a>
+                        <a href="{% url 'profile_view' profile.user.username %}?tab=upvoted">
+                            {% if tab == 'upvoted' %}
+                                <li class="list-group-item active tab">Upvoted</li>
+                            {% else %}
+                                <li class="list-group-item tab">Upvoted</li>
+                            {% endif %}
+                        </a>
+                        <a href="{% url 'profile_view' profile.user.username %}?tab=downvoted">
+                            {% if tab == 'downvoted' %}
+                                <li class="list-group-item active tab">Downvoted</li>
+                            {% else %}
+                                <li class="list-group-item tab">Downvoted</li>
+                            {% endif %}
+                        </a>
+                    </ul>
+                </div>
+    
+                {% if tab == 'bio' %}
+                    <div class="profileContentText">
+                        <span>{{ profile.user.email }}</span><br>
+                        <span>{{ profile.birth_date }}</span>
+                        <h2>Bio</h2>
+                        <p>{{ profile.bio }}</p>
+        
+                        <div class="d-flex mt-2 gap-1">
+                            {% if profile.user == request.user %}
+                                <a class="btn btn-primary btn-sm btn-custom"
+                                href="{% url 'user_update' profile.user.id %}"><i class="fas fa-edit"></i>Nutzername ändern</a>
+                                <a class="btn btn-primary btn-sm btn-custom"
+                                    href="{% url 'profile_update' profile.id %}"><i class="fas fa-edit"></i>Profil bearbeiten</a>
+                            {% endif %}
+                        </div>
+                    </div>
+                {% elif tab == 'posts' %}
+                    <div class="profileContentText">
+                        {% for post in profile_posts %}
+                            {% include "blog/post/post.html" with post=post profile=profile %}
+                        {% endfor %}
+                        
+                    </div>
+                {% elif tab == 'upvoted' %}
+                    <div class="profileContentText">
+                        {% for post in upvoted_posts %}
+                            {% include "blog/post/post.html" with post=post profile=profile %}
+                        {% endfor %}
+                        
+                    </div>
+
+                {% elif tab == 'downvoted' %}
+                    <div class="profileContentText">
+                        {% for post in downvoted_posts %}
+                            {% include "blog/post/post.html" with post=post profile=profile %}
+                        {% endfor %}
+                        
+                    </div>
+                {% endif %}
+            </div>
+            
+            
+            
         </div>
-        {% if is_following %}
-            <form action="{% url 'unfollow_user' profile.user.id %}" method="post">
-                {% csrf_token %}
-                <button type="submit">Unfollow</button>
-            </form>
-        {% else %}
-            <form action="{% url 'follow_user' profile.user.id %}" method="post">
-                {% csrf_token %}
-                <button type="submit">Follow</button>
-            </form>
-        {% endif %}
-        <div class="d-flex mt-2 gap-1">
-            {% if profile.user == request.user %}
-                <a class="btn btn-primary btn-sm"
-                   href="{% url 'user_update' profile.user.id %}"><i class="fas fa-edit"></i>Nutzername ändern</a>
-                <a class="btn btn-primary btn-sm"
-                     href="{% url 'profile_update' profile.id %}"><i class="fas fa-edit"></i>Profil bearbeiten</a>
-            {% endif %}
-        </div>
+        
     </div>
 {% endblock content %}

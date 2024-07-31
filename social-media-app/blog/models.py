@@ -34,10 +34,11 @@ class Post(models.Model):
     title = models.CharField(max_length=100, default="Ohne Titel")
     content = models.TextField()
     image = models.ImageField(upload_to='post_images', blank=True, null=True)
-    likes = models.ManyToManyField(User, related_name='post_likes', blank=True)
+    upvotes = models.ManyToManyField(User, related_name='post_upvotes', blank=True)
+    downvotes = models.ManyToManyField(User, related_name='post_downvotes', blank=True)
 
-    def like_count(self) -> int:
-        return self.likes.count()
+    def calculate_rating(self) -> int:
+        return self.upvotes.count() - self.downvotes.count()
 
 class Notification(models.Model):
     user = models.ForeignKey(User, on_delete=models.CASCADE)

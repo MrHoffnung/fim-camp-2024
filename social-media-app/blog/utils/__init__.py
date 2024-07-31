@@ -1,5 +1,5 @@
 from django.contrib.auth.models import User
-from blog.models import Notification
+from blog.models import Notification, Post
 
 def create_notification(user_id, source, text, link):
     user = User.objects.get(id=user_id)
@@ -12,3 +12,5 @@ def create_notification(user_id, source, text, link):
     )
     notification.save()
     return notification
+
+

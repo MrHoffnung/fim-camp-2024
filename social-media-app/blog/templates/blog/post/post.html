@@ -5,38 +5,49 @@
         border: 1px solid #ccc;
         border-radius: 5px;
     }
+
 </style>
 
 <div class="card mt-2">
     <div class="post card-body">
         <div>
-            {% if post.image %}
-                <img src="{{ post.image.url }}" alt="" width="100px" height="auto">
-            {% endif %}
             <h5 class="card-title">{{ post.title }} </h5>
             <div class="d-flex align-items-center gap-2">
-                <a href="{% url 'profile_view' post.creator.user.username %}">{{ post.creator.user.username }}</a>
+                <a href="{% url 'profile_view' post.creator.user.username %}" style="font-size: normal;">{{ post.creator.user.username }}</a>
                 <span>{{ post.publication_date }}</span>
             </div>
         </div>
+
+        {% if post.image %}
+            <img src="{{ post.image.url }}" alt="" width="100px" height="auto">
+        {% endif %}
+
         <p class="card-text">{{ post.content | linebreaks }}</p>
         <div class="d-flex justify-content-between mt-1 mb1 gap-1 align-items-center">
             <div>
                 {% if user.is_authenticated %}
-                    {% if user in post.likes.all %}
-                        <a href="{% url 'like_view' post.id %}" class="btn btn-outline-success btn-sm">&#x1F44D; Unlike</a>
+                    {% if user in post.upvotes.all %}
+                        <a href="{% url 'upvote_view' post.id %}" class="btn btn-success btn-sm">&uArr;</a>
                     {% else %}
-                        <a href="{% url 'like_view' post.id %}" class="btn btn-outline-success btn-sm">&#x1F44D; Like</a>
+                        <a href="{% url 'upvote_view' post.id %}" class="btn btn-outline-success btn-sm">&uArr;</a>
+                    {% endif %}
+
+                    {% if user in post.downvotes.all %}
+                        <a href="{% url 'downvote_view' post.id %}" class="btn btn-danger btn-sm">&dArr;</a>
+                    {% else %}
+                        <a href="{% url 'downvote_view' post.id %}" class="btn btn-outline-danger btn-sm">&dArr;</a>
+                    {% endif %}
+
+                    {% if post.creator.user != user %}
+                        {% if user in post.creator.followers.all %}
+                            <a href="{% url 'follow_view' post.creator.user.id %}" class="btn btn-outline-primary btn-sm">&#x1F465; Unfollow</a>
+                        {% else %}
+                            <a href="{% url 'follow_view' post.creator.user.id %}" class="btn btn-outline-primary btn-sm">&#x1F465; Follow</a>
+                        {% endif %}
                     {% endif %}
                 {% endif %}
-
-
-                {% if user in post.creator.followers.all %}
-                    <a href="{% url 'follow_view' post.creator.user.id %}" class="btn btn-outline-primary btn-sm">&#x1F465; Unfollow</a>
-                {% else %}
-                    <a href="{% url 'follow_view' post.creator.user.id %}" class="btn btn-outline-primary btn-sm">&#x1F465; Follow</a>
-                {% endif %}
-                <a href="" class="btn btn-outline-info btn-sm">🔔 Subscribe</a>
+                
+                <div class="btn-info btn btn-sm" style="color: #f8f9fa; font-weight: bold;">{{ post.calculate_rating }}</div>
             </div>
 
             <div>

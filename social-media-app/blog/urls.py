@@ -19,5 +19,6 @@ urlpatterns = [
     path("post/<int:pk>/update/", PostEditView.as_view(), name="post_update"),
     path("post/<int:pk>/delete/", PostDeleteView.as_view(), name="post_delete"),
     path('follow/<int:user_id>/', views.follow_view, name='follow_view'),
-    path('like/<int:post_id>/', views.like_view, name='like_view'),
+    path('upvote/<int:post_id>/', views.upvote_view, name='upvote_view'),
+    path('downvote/<int:post_id>/', views.downvote_view, name='downvote_view'),
 ] 

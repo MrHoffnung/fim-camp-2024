@@ -1,4 +1,5 @@
 from typing import Any, Dict
+from django.forms import BaseModelForm
 
 import django.http
 from django.contrib import messages
@@ -12,6 +13,7 @@ from django.shortcuts import redirect, render
 from django.urls import reverse, reverse_lazy
 from django.views.generic import CreateView, DeleteView, TemplateView, UpdateView
 from django.shortcuts import get_object_or_404
+from urllib.parse import urlencode
 
 from blog.forms import UserRegisterForm
 from blog.models import Post, Profile
@@ -55,7 +57,7 @@ class UserUpdateView(LoginRequiredMixin, UserPassesTestMixin, UpdateView):
 
     def get_success_url(self) -> str:
         user: User = self.get_object()
-        return reverse("profile", kwargs={"username": user.username})
+        return reverse("profile_view", kwargs={"username": user.username})
 
 
 ################################################################################
@@ -115,10 +117,17 @@ class ProfileUpdateView(LoginRequiredMixin, UpdateView):
     def get_success_url(self) -> str:
         profile: Profile = self.get_object()
         return reverse("profile_view", kwargs={"username": profile.user.username})
+    
+    def get_form(self, form_class=None) -> BaseModelForm:
+        form = super().get_form(form_class)
+        form.fields["bio"].label = "Biographie"
+        form.fields["birth_date"].label = "Geburtstag"
+        form.fields["profile_image"].label = "Profilbild (quadratisch)"
+        return form
 
 class PostCreateView(LoginRequiredMixin, CreateView):
     model = Post
-    fields = ["title", "content"]
+    fields = ["title", "content", "image"]
     success_url = reverse_lazy("index")
     template_name = "blog/post/create_post.html"
 
@@ -149,28 +158,67 @@ class PostEditView(LoginRequiredMixin, UserPassesTestMixin, UpdateView):
         return self.request.user == post.creator.user
 
 
-@login_required
 def profile_view(request, username):
     profile = get_object_or_404(Profile, user__username=username)
+    tab = request.GET.get("tab")
+    profile_posts = Post.objects.filter(creator=profile)
+    upvoted_posts = Post.objects.filter(upvotes__in=[profile.user])
+    downvoted_posts = Post.objects.filter(downvotes__in=[profile.user])
+
+
+    if tab == None: tab = 'bio'
 
     return render(request, 'blog/user/profile.html', {
         'profile': profile,
+        'tab': tab,
+        'profile_posts': profile_posts,
+        'upvoted_posts': upvoted_posts,
+        'downvoted_posts': downvoted_posts
     })
 
 
 
 
 @login_required
-def like_view(request, post_id):
+def upvote_view(request, post_id):
     post = get_object_or_404(Post, id=post_id)
-    likes = post.likes.all()
+    upvotes = post.upvotes.all()
     user = request.user
-    if user in likes:
-        post.likes.remove(request.user)
+    if user in upvotes:
+        post.upvotes.remove(request.user)
     else:
-        post.likes.add(request.user)
+        post.upvotes.add(request.user)
+
+        if user in post.downvotes.all(): post.downvotes.remove(user)
+
     post.save()
-    return redirect('index')
+    
+    referer = request.META.get('HTTP_REFERER')
+
+    if referer.endswith('blog/'):
+        return redirect('index')
+    elif "profile" in referer:
+        return redirect(referer)
+    
+@login_required
+def downvote_view(request, post_id):
+    post = get_object_or_404(Post, id=post_id)
+    downvotes = post.downvotes.all()
+    user = request.user
+    if user in downvotes:
+        post.downvotes.remove(request.user)
+    else:
+        post.downvotes.add(request.user)
+
+        if user in post.upvotes.all(): post.upvotes.remove(user)
+    post.save()
+    
+    referer = request.META.get('HTTP_REFERER')
+
+    if referer.endswith('blog/'):
+        return redirect('index')
+    elif "profile" in referer:
+        return redirect(referer)
 
 @login_required
 def follow_view(request, user_id):
@@ -189,6 +237,5 @@ def follow_view(request, user_id):
     if referer.endswith('blog/'):
         return redirect('index')
     elif "profile" in referer:
-        return redirect('profile_view', username=user.username)
-
+        return redirect(referer)
     
