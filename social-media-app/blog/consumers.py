@@ -3,7 +3,10 @@ from channels.generic.websocket import AsyncWebsocketConsumer
 
 class ChatConsumer(AsyncWebsocketConsumer):
     async def connect(self):
-        await self.accept()
+        if self.scope["user"].is_authenticated:
+            await self.accept()
+        else:
+            await self.close()
 
     async def disconnect(self, close_code):
         pass
@@ -11,8 +14,10 @@ class ChatConsumer(AsyncWebsocketConsumer):
     async def receive(self, text_data):
         text_data_json = json.loads(text_data)
         message = text_data_json['message']
+        username = self.scope["user"].username
 
-        # Send message to WebSocket
+        # Send message to WebSocket with username
         await self.send(text_data=json.dumps({
-            'message': message
+            'message': message,
+            'username': username
         }))

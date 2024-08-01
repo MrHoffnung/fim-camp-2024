@@ -87,12 +87,18 @@ class PostListView(TemplateView):
             show_posts = paginator.page(paginator.num_pages)
 
 
+        if self.request.user.is_authenticated:
+            followed_profiles = Profile.objects.filter(followers=self.request.user)
+            context["followed_posts"] = Post.objects.filter(creator__in=followed_profiles)
+
         context["posts"] = show_posts
         context["only_followed"] = self.request.GET.get("only_followed", False)
         context["latest_users"] = User.objects.order_by("-date_joined")[:10]
         context["latest_posts"] = Post.objects.order_by("-publication_date")[:10]
+        
 
         return context
+          
           
 
     def _posts(self) -> QuerySet[Post]:

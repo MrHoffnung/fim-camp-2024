@@ -14,17 +14,28 @@
         <div class="row">
             <!-- Main content (posts) -->
             <div class="col-md-8">
-                {% for post in posts %}
-                    {% include "blog/post/post.html" with post=post profile=profile has_followed=post.has_followed %}
-                {% endfor %}
-                <div class="mt-2">
-                    {% if user.is_authenticated and not only_followed %}
-                        <a class="btn btn-primary btn-sm" href="{% url 'index' %}?only_followed=True">Nur Posts von gefolgten Nutzern</a>
+                {% if user.is_authenticated %}
+                    {% if only_followed and user.is_authenticated %}
+                        {% for post in followed_posts %}
+                            {% include "blog/post/post.html" with post=post profile=profile has_followed=post.has_followed %}
+                        {% endfor %}
+                    {% else %}
+                        {% for post in posts %}
+                            {% include "blog/post/post.html" with post=post profile=profile has_followed=post.has_followed %}
+                        {% endfor %}
                     {% endif %}
-                </div>
+                    <div class="mt-2">
+                        {% if not only_followed %}
+                            <a class="btn btn-primary btn-sm" href="{% url 'index' %}?only_followed=True">Nur Posts von gefolgten Nutzern</a>
+                        {% else %}
+                            <a class="btn btn-primary btn-sm" href="{% url 'index' %}">Posts von allen Nutzern</a>
+                        {% endif %}
+                    </div>
+                {% endif %}
             </div>
-            <!-- Sidebar (vertical list) -->
+            <!-- Sidebar (vertical list and chat) -->
             <div class="col-md-4">
+                <!-- Welcome block -->
                 <div class="card">
                     <div class="card-header">
                         <h5 class="card-title">Herzlich Willkommen</h5>
@@ -39,7 +50,65 @@
                         {% endfor %}
                     </ul>
                 </div>
+                <!-- Chat block -->
+                <div class="card mt-4">
+                    <div class="card-header">
+                        <h5 class="card-title">Chat</h5>
+                    </div>
+                    <ul id="chat-log" class="list-group list-group-flush">
+                        <!-- Chat messages will be appended here -->
+                    </ul>
+                    <div class="card-body">
+                        <input id="chat-message-input" type="text" size="100" class="form-control" placeholder="Type your message here...">
+                    </div>
+                </div>
             </div>
+
+            <script>
+                document.addEventListener('DOMContentLoaded', function () {
+                    const chatSocket = new WebSocket('ws://' + window.location.host + '/ws/chat/');
+                    const channel = new BroadcastChannel('chat_channel');
+
+                    chatSocket.onmessage = function (e) {
+                        const data = JSON.parse(e.data);
+                        addMessageToChatLog(data.username, data.message);
+                        channel.postMessage({ username: data.username, message: data.message });
+                    };
+
+                    chatSocket.onclose = function (e) {
+                        console.error('Chat socket closed unexpectedly');
+                    };
+
+                    document.querySelector('#chat-message-input').focus();
+                    document.querySelector('#chat-message-input').onkeyup = function (e) {
+                        if (e.keyCode === 13) {
+                            const messageInput = document.querySelector('#chat-message-input');
+                            const message = messageInput.value;
+                            chatSocket.send(JSON.stringify({
+                                'message': message
+                            }));
+                            messageInput.value = '';
+                        }
+                    };
+
+                    channel.onmessage = function (e) {
+                        addMessageToChatLog(e.data.username, e.data.message);
+                    };
+
+                    function addMessageToChatLog(username, message) {
+                        const chatLog = document.querySelector('#chat-log');
+                        const newMessage = document.createElement('li');
+                        newMessage.classList.add('list-group-item');
+                        newMessage.innerHTML = `<b>${username}</b>: ${message}`;
+                        chatLog.appendChild(newMessage);
+
+                        // Limit the number of messages to 10
+                        while (chatLog.children.length > 10) {
+                            chatLog.removeChild(chatLog.firstChild);
+                        }
+                    }
+                });
+            </script>
         </div>
     </div>
 {% endblock content %}
