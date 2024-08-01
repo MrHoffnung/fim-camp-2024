@@ -19,8 +19,8 @@ django_asgi_app = get_asgi_application()
 
 os.environ.setdefault("DJANGO_SETTINGS_MODULE", "social_media_app.settings")
 application = ProtocolTypeRouter({
-    "http": get_asgi_application(),
-    "websocket": AuthMiddlewareStack(
+    'http': get_asgi_application(),
+    'websocket': AuthMiddlewareStack(
         URLRouter(
             routing.websocket_urlpatterns
         )

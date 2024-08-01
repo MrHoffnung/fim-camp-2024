@@ -25,6 +25,12 @@ class Profile(models.Model):
             output_size = (300, 300)
             img.thumbnail(output_size)
             img.save(self.profile_image.path)
+
+    def get_follower_count(self):
+        return self.followers.count()
+    
+    def get_latest_notifications(self):
+        return self.user.notifications.order_by('-id')[:4][::-1]
     
 
     
@@ -52,5 +58,11 @@ class Notification(models.Model):
     user = models.ForeignKey(User, related_name='notifications', on_delete=models.CASCADE)
     source = models.CharField(max_length=255)
     text = models.TextField()
-    link = models.URLField()
-    read = models.BooleanField(default=False)
+
+class ChatMessage(models.Model):
+    user = models.ForeignKey(User, on_delete=models.CASCADE)
+    message = models.TextField()
+    timestamp = models.DateTimeField(auto_now_add=True)
+
+    def __str__(self):
+        return f"{self.user.username}: {self.message}"

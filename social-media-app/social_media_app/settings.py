@@ -47,6 +47,7 @@ INSTALLED_APPS = [
     'channels'
 ]
 
+
 MIDDLEWARE = [
     "django.middleware.clickjacking.XFrameOptionsMiddleware",
     "debug_toolbar.middleware.DebugToolbarMiddleware",

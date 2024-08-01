@@ -18,7 +18,7 @@ from urllib.parse import urlencode
 from blog.forms import UserRegisterForm
 from blog.models import Post, Profile
 from django.contrib.auth.decorators import login_required
-from .utils import create_notification
+from blog.notifications import create_notification
 
 ################################################################################
 # user management
@@ -140,6 +140,11 @@ class PostCreateView(LoginRequiredMixin, CreateView):
     def form_valid(self, form) -> HttpResponse:
         profile = Profile.objects.get(user=self.request.user)
         form.instance.creator = profile
+        followers = profile.followers
+
+        for follower in followers.all():
+            create_notification(follower.id, 'System', f"{profile.user.username} hat einen neuen Post erstellt")
+
         return super().form_valid(form)
 
 
@@ -193,6 +198,7 @@ def upvote_view(request, post_id):
     if user in upvotes:
         post.upvotes.remove(request.user)
     else:
+        create_notification(post.creator.user.id, 'System', f"{request.user.username} mag deinen Post")
         post.upvotes.add(request.user)
 
         if user in post.downvotes.all(): post.downvotes.remove(user)
@@ -236,6 +242,7 @@ def follow_view(request, user_id):
         profile.followers.remove(user)
     else:
         profile.followers.add(user)
+        create_notification(profile.user.id, 'System', f"{request.user.username} hat dir gefolgt")
     profile.save()
 
     referer = request.META.get('HTTP_REFERER')
@@ -256,7 +263,7 @@ def add_comment_view(request, post_id):
             post.comments.create(author=profile, content=content, post=post)
             post.save()
             
-            create_notification(post.creator.user.id, 'System', f"{request.user.username} hat dir einen Kommentar hinterlassen", post.id)
+            create_notification(post.creator.user.id, 'System', f"{request.user.username} hat dir einen Kommentar hinterlassen")
     
     referer = request.META.get('HTTP_REFERER', '/')
     return redirect(referer)

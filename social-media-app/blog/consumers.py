@@ -1,5 +1,7 @@
 import json
 from channels.generic.websocket import AsyncWebsocketConsumer
+from blog.models import ChatMessage
+from asgiref.sync import sync_to_async
 
 class ChatConsumer(AsyncWebsocketConsumer):
     async def connect(self):
@@ -16,7 +18,6 @@ class ChatConsumer(AsyncWebsocketConsumer):
         message = text_data_json['message']
         username = self.scope["user"].username
 
-        # Send message to WebSocket with username
         await self.send(text_data=json.dumps({
             'message': message,
             'username': username

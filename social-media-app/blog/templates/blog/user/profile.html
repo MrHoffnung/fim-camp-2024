@@ -73,14 +73,46 @@
             text-decoration: none;
         }
 
+        .profile-image-container {
+            position: relative; /* Make container a positioning context for absolute children */
+            display: inline-block; /* Fit container to image size */
+        }
+
+        .profileImage {
+            display: block; /* Remove extra space below image */
+        }
+
+        .overlay-text {
+            position: absolute; /* Position text on top of image */
+            top: 50%; /* Center text vertically */
+            left: 50%; /* Center text horizontally */
+            transform: translate(-50%, -50%); /* Adjust for exact center positioning */
+            color: white; /* Text color */
+            background-color: rgba(0, 0, 0, 0.5); /* Background with some transparency */
+            padding: 10px; /* Space around text */
+            border-radius: 5px; /* Rounded corners */
+            font-size: 16px; /* Text size */
+            text-align: center; /* Center text within the box */
+            white-space: nowrap; /* Prevent text from wrapping */
+            font-weight: bold;
+            font-size: 30px;
+        }
+
+        .hide-cursor {
+            cursor: none;
+        }
+
 
     </style>
     
     <div>
         <div class="d-flex flex-column align-items-center gap-2">
+
             <div class="profileHead d-flex">
                 {% if profile.profile_image %}
-                    <img class="profileImage" src="{{ profile.profile_image.url }}" />
+                    <div class="profile-image-container">
+                        <img class="profileImage" src="{{ profile.profile_image.url }}" alt="Profile Image"/>
+                    </div>
                 {% endif %}
 
                 <div class="ml-4 d-flex align-items-center justify-content-center">
@@ -99,6 +131,7 @@
                             </form>
                         {% endif %}
                     {% endif %}
+                    <div class="btn btn-primary btn-custom followButton">{{ profile.get_follower_count }}</div>
                 </div>
             </div>
 
