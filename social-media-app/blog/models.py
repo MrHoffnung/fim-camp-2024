@@ -27,6 +27,7 @@ class Profile(models.Model):
             img.save(self.profile_image.path)
     
 
+    
 
 class Post(models.Model):
     creator = models.ForeignKey(Profile, on_delete=models.CASCADE)
@@ -36,12 +37,19 @@ class Post(models.Model):
     image = models.ImageField(upload_to='post_images', blank=True, null=True)
     upvotes = models.ManyToManyField(User, related_name='post_upvotes', blank=True)
     downvotes = models.ManyToManyField(User, related_name='post_downvotes', blank=True)
+    comments = models.ManyToManyField('Comment', related_name='post_comments', blank=True)
 
     def calculate_rating(self) -> int:
         return self.upvotes.count() - self.downvotes.count()
+    
+class Comment(models.Model):
+    author = models.ForeignKey(Profile, on_delete=models.CASCADE)
+    post = models.ForeignKey(Post, on_delete=models.CASCADE)
+    content = models.TextField()
+    publication_date = models.DateTimeField(auto_now=True)
 
 class Notification(models.Model):
-    user = models.ForeignKey(User, on_delete=models.CASCADE)
+    user = models.ForeignKey(User, related_name='notifications', on_delete=models.CASCADE)
     source = models.CharField(max_length=255)
     text = models.TextField()
     link = models.URLField()

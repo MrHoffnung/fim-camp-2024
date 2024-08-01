@@ -45,7 +45,7 @@
                             </a>
                             <ul class="dropdown-menu" aria-labelledby="navbarDropdownPosts">
                                 <li><a class="dropdown-item" href="">Dein Profil</a></li>
-                                <li><a class="dropdown-item" href="">Alle Profile</a></li>
+                                <li><a class="dropdown-item" href="{% url 'profiles_view' %}">Alle Profile</a></li>
                             </ul>
                         </li>
 
@@ -81,8 +81,8 @@
                                 Benachrichtigungen
                             </a>
                             <ul class="dropdown-menu" aria-labelledby="navbarDropdown">
-                                {% for notification in notifications.all %}
-                                    <li><a class="dropdown-item" href="#">{{ notification.message }}</a></li>
+                                {% for notification in user.notifications.all|slice:":10" %}
+                                    <li><a class="dropdown-item" href="{{ notification.link }}"><b>{{ notification.source }}:</b> {{ notification.text }}</a></li>
                                 {% empty %}
                                     <li><a class="dropdown-item" href="#">Keine Benachrichtigungen</a></li>
                                 {% endfor %}

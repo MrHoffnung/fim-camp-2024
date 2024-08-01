@@ -1,0 +1,21 @@
+{% extends "blog/base.html" %}
+{% load django_bootstrap5 %}
+{% block content %}
+
+<style>
+    .userItem {
+        background-color: aquamarine;
+        padding: 20px 80px 20px 80px;
+        width: 800px;
+    }
+</style>
+
+<div">
+    <ul>
+        {% for profile in profiles %}
+            <li><b>{{ profile.user.username }}</b> - Beigetreten am 21.01.2020</li>
+        {% endfor %}
+    </ul>
+</div>
+
+{% endblock %}

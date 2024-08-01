@@ -104,7 +104,7 @@ class PostListView(TemplateView):
             posts = Post.objects.filter(
                 Q(title__icontains=search_query)
                 | Q(content__icontains=search_query)
-                | Q(creator__username__icontains=search_query)  # Korrigierte Zeile
+                | Q(creator__user__username__icontains=search_query)
             )
 
         return posts.order_by("-publication_date")
@@ -239,3 +239,33 @@ def follow_view(request, user_id):
     elif "profile" in referer:
         return redirect(referer)
     
+def profile_view(request):
+    profiles = Profile.objects.all()
+    return render(request, 'blog/user/profile_list.html', {
+        'profiles': profiles,
+    })
+
+@login_required
+def add_comment_view(request, post_id):
+    post = get_object_or_404(Post, id=post_id)
+    
+    if request.method == 'POST':
+        content = request.POST.get('content')
+        if content:
+            profile = Profile.objects.get(user=request.user)
+            post.comments.create(author=profile, content=content, post=post)
+            post.save()
+            
+            create_notification(post.creator.user.id, 'System', f"{request.user.username} hat dir einen Kommentar hinterlassen", post.id)
+    
+    referer = request.META.get('HTTP_REFERER', '/')
+    return redirect(referer)
+
+def delete_comment_view(request, post_id, comment_id):
+    post = get_object_or_404(Post, id=post_id)
+    comment = get_object_or_404(post.comments, id=comment_id)
+    comment.delete()
+    
+    referer = request.META.get('HTTP_REFERER')
+
+    return redirect(referer)
