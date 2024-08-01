@@ -14,7 +14,6 @@ urlpatterns = [
     path("user/<int:pk>/update/", UserUpdateView.as_view(), name="user_update"),
     path("profile/<str:username>", views.profile_view, name="profile_view"),
     path("profile/<int:pk>/update", views.ProfileUpdateView.as_view(), name="profile_update"),
-    path("profiles", views.profile_view, name="profiles_view"),
     # post management
     path("post/new", PostCreateView.as_view(), name="post_create"),
     path("post/<int:pk>/update/", PostEditView.as_view(), name="post_update"),
@@ -23,5 +22,5 @@ urlpatterns = [
     path('upvote/<int:post_id>/', views.upvote_view, name='upvote_view'),
     path('downvote/<int:post_id>/', views.downvote_view, name='downvote_view'),
     path('comment/<int:post_id>/', views.add_comment_view, name='add_comment_view'),
-    path('comment/<int:post_id>/<int:comment_id>/delete/', views.delete_comment_view, name='delete_comment_view'),
+    path('chat', views.chat_view, name='chat_view'),
 ] 

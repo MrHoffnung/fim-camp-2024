@@ -6,11 +6,7 @@
         border-radius: 5px;
     }
 
-    .hidden-content {
-        display: none;
-    }
-
-    .modal {
+    .modal { 
         display: none;
         position: fixed;
         z-index: 1;
@@ -19,8 +15,7 @@
         width: 100%;
         height: 100%;
         overflow: auto;
-        background-color: rgb(0,0,0);
-        background-color: rgba(0,0,0,0.4);
+        background-color: rgba(0, 0, 0, 0.4);
     }
 
     .modal-content {
@@ -51,6 +46,7 @@
         align-items: center;
         border-bottom: 1px solid #ccc;
         padding-bottom: 10px;
+        margin-bottom: 30px;
     }
 
     .modal-header h2 {
@@ -60,84 +56,92 @@
     .modal-header button {
         margin-left: 10px; 
     }
+
+    .mediaContent {
+        margin: 20px;
+        margin-left: 0;
+    }
 </style>
 
 <div class="card mt-2">
     <div class="post card-body">
         <div>
-            <h5 class="card-title">{{ post.title }} </h5>
+            <h5 class="card-title">{{ post.title }}</h5>
             <div class="d-flex align-items-center gap-2">
                 <a href="{% url 'profile_view' post.creator.user.username %}" style="font-size: normal;">{{ post.creator.user.username }}</a>
                 <span>{{ post.publication_date }}</span>
             </div>
         </div>
 
-        {% if post.image %}
-            <img src="{{ post.image.url }}" alt="" width="100px" height="auto">
-        {% endif %}
+        <div class="mediaContent">
+            {% if post.video %}
+                <video width="300px" height="auto" controls> 
+                    <source src="{{ post.video.url }}">
+                </video>
+            {% elif post.image %}
+                <img src="{{ post.image.url }}" alt="" width="100px" height="auto">
+            {% endif %}
+        </div>
 
         <script>
             document.addEventListener('DOMContentLoaded', function() {
-                const showMoreButtons = document.querySelectorAll('.show-more-btn');
-                const commentBtn = document.getElementById('commentBtn');
-                const modal = document.getElementById('commentModal');
-                const closeBtn = document.getElementsByClassName('close')[0];
-                const newCommentBtn = document.getElementById('newCommentBtn');
-                const newCommentModal = document.getElementById('newCommentModal');
-                const newCommentCloseBtn = newCommentModal.getElementsByClassName('close')[0];
+                // Function to toggle content visibility
+                function toggleContent(button) {
+                    const postId = button.getAttribute('data-post-id');
+                    const hiddenContent = document.querySelector(`.hidden-content-${postId}`);
+                    const showMoreButton = document.querySelector(`.show-more-btn-${postId}`);
+                    if (hiddenContent.style.display === 'none' || hiddenContent.style.display === '') {
+                        hiddenContent.style.display = 'inline';
+                        showMoreButton.textContent = 'Weniger';
+                    } else {
+                        hiddenContent.style.display = 'none';
+                        showMoreButton.textContent = 'Mehr';
+                    }
+                }
 
-                showMoreButtons.forEach(button => {
+                // Add event listeners for show more buttons
+                document.querySelectorAll('.show-more-btn').forEach(button => {
                     button.addEventListener('click', function() {
-                        const hiddenContent = this.previousElementSibling;
-                        if (hiddenContent.style.display === 'none' || hiddenContent.style.display === '') {
-                            hiddenContent.style.display = 'inline';
-                            this.textContent = 'Weniger';
-                        } else {
-                            hiddenContent.style.display = 'none';
-                            this.textContent = 'Mehr';
-                        }
-                    });
-
-                    button.addEventListener('mouseover', function() {
-                        this.style.cursor = 'pointer';
+                        toggleContent(this);
                     });
                 });
 
-                commentBtn.addEventListener('click', function() {
-                    modal.style.display = 'block';
+                // Add event listeners for comment and new comment modals
+                document.querySelectorAll('[id^="commentBtn-"]').forEach(button => {
+                    button.addEventListener('click', function() {
+                        const postId = this.getAttribute('data-post-id');
+                        document.getElementById(`commentModal-${postId}`).style.display = 'block';
+                    });
                 });
 
-                closeBtn.addEventListener('click', function() {
-                    modal.style.display = 'none';
+                document.querySelectorAll('[id^="newCommentBtn-"]').forEach(button => {
+                    button.addEventListener('click', function() {
+                        const postId = this.getAttribute('data-post-id');
+                        document.getElementById(`newCommentModal-${postId}`).style.display = 'block';
+                    });
                 });
 
+                // Add event listeners for closing modals
+                document.querySelectorAll('.close').forEach(button => {
+                    button.addEventListener('click', function() {
+                        this.closest('.modal').style.display = 'none';
+                    });
+                });
+
+                // Close modals when clicking outside of them
                 window.addEventListener('click', function(event) {
-                    if (event.target == modal) {
-                        modal.style.display = 'none';
+                    if (event.target.classList.contains('modal')) {
+                        event.target.style.display = 'none';
                     }
                 });
-
-                newCommentBtn.addEventListener('click', function() {
-                    newCommentModal.style.display = 'block';
-                });
-
-                newCommentCloseBtn.addEventListener('click', function() {
-                    newCommentModal.style.display = 'none';
-                });
-
-                window.addEventListener('click', function(event) {
-                    if (event.target == newCommentModal) {
-                        newCommentModal.style.display = 'none';
-                    }
-                });
-
             });
         </script>
+
         <p class="card-text">
             {{ post.content|slice:":200" }}{% if post.content|length > 200 %}...{% endif %}
             {% if post.content|length > 200 %}
-                <span class="hidden-content">{{ post.content|slice:"200:" }}</span>
-                <span class="show-more-btn">Mehr</span>
+                <span class="hidden-content-{{ post.id }}" style="display: none;">{{ post.content|slice:"200:" }}</span>
+                <span class="show-more-btn" data-post-id="{{ post.id }}">Mehr</span>
             {% endif %}
         </p>
 
@@ -165,7 +169,7 @@
                     {% endif %}
                 {% endif %}
                 
-                <div id="commentBtn" class="btn btn-primary btn-sm">
+                <div id="commentBtn-{{ post.id }}" class="btn btn-primary btn-sm" data-post-id="{{ post.id }}">
                     &#128240;
                 </div>
                 <div class="btn-info btn btn-sm" style="color: #f8f9fa; font-weight: bold;">{{ post.calculate_rating }}</div>
@@ -178,21 +182,22 @@
                 {% endif %}
             </div>
 
-            <div id="commentModal" class="modal">
+            <!-- Comment Modal -->
+            <div id="commentModal-{{ post.id }}" class="modal">
                 <div class="modal-content">
                     <div class="modal-header">
                         <h2>Kommentare</h2>
-                        {% if user.is_authenticated %}
-                            <button id="newCommentBtn" class="btn btn-success">Neuer Kommentar</button>
-                        {% endif %}
-                        <span class="close">&times;</span>
+                        <div>
+                            {% if user.is_authenticated %}
+                                <button id="newCommentBtn-{{ post.id }}" class="btn btn-success" data-post-id="{{ post.id }}" style="margin-right: 20px;">Neuer Kommentar</button>
+                            {% endif %}
+                            <span class="close">&times;</span>
+                        </div>
                     </div>
                     <div>
-                        <form id="commentForm">
+                        <form id="commentForm-{{ post.id }}">
                             {% for comment in post.comments.all %}
-                                <div>
-                                    <strong>{{ comment.author.user.username }}:</strong> {{ comment.content }}
-                                </div>
+                                {% include "blog/post/comment.html" with comment=comment %}
                             {% empty %}
                                 <p>Keine Kommentare vorhanden.</p>
                             {% endfor %}
@@ -201,16 +206,16 @@
                 </div>
             </div>
             
-            <!-- Neuer Kommentar-Modal -->
-            <div id="newCommentModal" class="modal">
+            <!-- New Comment Modal -->
+            <div id="newCommentModal-{{ post.id }}" class="modal">
                 <div class="modal-content">
-                    <span class="close">&times;</span>
-                    <form id="newCommentForm" method="post" action="{% url 'add_comment_view' post.id %}">
+                    <form id="newCommentForm-{{ post.id }}" method="post" action="{% url 'add_comment_view' post.id %}">
                         {% csrf_token %}
+                        <span class="close">&times;</span>
                         <h2>Neuen Kommentar hinzufügen</h2>
                         <div class="form-group">
-                            <label for="commentText">Kommentar:</label>
-                            <textarea id="commentText" name="content" class="form-control" rows="4" required></textarea>
+                            <label for="commentText-{{ post.id }}">Kommentar:</label>
+                            <textarea id="commentText-{{ post.id }}" name="content" class="form-control" rows="4" required></textarea>
                         </div>
                         <button type="submit" class="btn btn-success mt-2">Absenden</button>
                     </form>

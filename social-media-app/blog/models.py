@@ -35,16 +35,16 @@ class Post(models.Model):
     title = models.CharField(max_length=100, default="Ohne Titel")
     content = models.TextField()
     image = models.ImageField(upload_to='post_images', blank=True, null=True)
+    video = models.FileField(upload_to='post_videos', blank=True, null=True)
     upvotes = models.ManyToManyField(User, related_name='post_upvotes', blank=True)
     downvotes = models.ManyToManyField(User, related_name='post_downvotes', blank=True)
-    comments = models.ManyToManyField('Comment', related_name='post_comments', blank=True)
 
     def calculate_rating(self) -> int:
         return self.upvotes.count() - self.downvotes.count()
     
 class Comment(models.Model):
     author = models.ForeignKey(Profile, on_delete=models.CASCADE)
-    post = models.ForeignKey(Post, on_delete=models.CASCADE)
+    post = models.ForeignKey(Post, on_delete=models.CASCADE, related_name="comments")
     content = models.TextField()
     publication_date = models.DateTimeField(auto_now=True)
 
@@ -54,4 +54,3 @@ class Notification(models.Model):
     text = models.TextField()
     link = models.URLField()
     read = models.BooleanField(default=False)
-

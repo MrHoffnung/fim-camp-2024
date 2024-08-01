@@ -127,7 +127,7 @@ class ProfileUpdateView(LoginRequiredMixin, UpdateView):
 
 class PostCreateView(LoginRequiredMixin, CreateView):
     model = Post
-    fields = ["title", "content", "image"]
+    fields = ["title", "content", "image", "video"]
     success_url = reverse_lazy("index")
     template_name = "blog/post/create_post.html"
 
@@ -149,7 +149,7 @@ class PostDeleteView(LoginRequiredMixin, UserPassesTestMixin, DeleteView):
 
 class PostEditView(LoginRequiredMixin, UserPassesTestMixin, UpdateView):
     model = Post
-    fields = ["title", "content", "image"]
+    fields = ["title", "content", "image", "video"]
     success_url = reverse_lazy("index")
     template_name = "blog/post/edit_post.html"
 
@@ -239,12 +239,6 @@ def follow_view(request, user_id):
     elif "profile" in referer:
         return redirect(referer)
     
-def profile_view(request):
-    profiles = Profile.objects.all()
-    return render(request, 'blog/user/profile_list.html', {
-        'profiles': profiles,
-    })
-
 @login_required
 def add_comment_view(request, post_id):
     post = get_object_or_404(Post, id=post_id)
@@ -261,11 +255,6 @@ def add_comment_view(request, post_id):
     referer = request.META.get('HTTP_REFERER', '/')
     return redirect(referer)
 
-def delete_comment_view(request, post_id, comment_id):
-    post = get_object_or_404(Post, id=post_id)
-    comment = get_object_or_404(post.comments, id=comment_id)
-    comment.delete()
-    
-    referer = request.META.get('HTTP_REFERER')
-
-    return redirect(referer)
+@login_required
+def chat_view(request):
+    return render(request, "blog/chat/chat.html")

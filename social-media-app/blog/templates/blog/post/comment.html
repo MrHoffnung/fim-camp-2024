@@ -1,0 +1,35 @@
+{% load static %}   
+
+<style>
+    .comment-card {
+        border: 1px solid #ddd;
+        border-radius: 5px;
+        padding: 10px;
+        margin-bottom: 10px;
+    }
+
+    .comment-author {
+        font-weight: bold;
+    }
+
+    .comment-date {
+        color: #888;
+        font-size: 0.9em;
+    }
+
+    .comment-content {
+        margin-top: 5px;
+    }
+</style>
+
+<div class="comment-card">
+    <div class="comment-author">
+        {{ comment.author.user.username }}
+    </div>
+    <div class="comment-date">
+        {{ comment.publication_date }}
+    </div>
+    <div class="comment-content">
+        {{ comment.content }}
+    </div>
+</div>
