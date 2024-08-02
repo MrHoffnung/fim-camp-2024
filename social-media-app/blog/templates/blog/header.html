@@ -44,7 +44,7 @@
                                 Profile
                             </a>
                             <ul class="dropdown-menu" aria-labelledby="navbarDropdownPosts">
-                                <li><a class="dropdown-item" href="">Dein Profil</a></li>
+                                <li><a class="dropdown-item" href="{% url 'profile_view' user.username %}">Dein Profil</a></li>
                             </ul>
                         </li>
                     {% else %}

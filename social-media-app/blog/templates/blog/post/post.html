@@ -1,4 +1,4 @@
-{% load static %}   
+{% load static %}
 
 <style>
     .post {
@@ -61,6 +61,11 @@
         margin: 20px;
         margin-left: 0;
     }
+
+    .show-more-btn {
+        color: rgb(37, 150, 190);
+        cursor: pointer;
+    }
 </style>
 
 <div class="card mt-2">
@@ -83,65 +88,11 @@
             {% endif %}
         </div>
 
-        <script>
-            document.addEventListener('DOMContentLoaded', function() {
-                // Function to toggle content visibility
-                function toggleContent(button) {
-                    const postId = button.getAttribute('data-post-id');
-                    const hiddenContent = document.querySelector(`.hidden-content-${postId}`);
-                    const showMoreButton = document.querySelector(`.show-more-btn-${postId}`);
-                    if (hiddenContent.style.display === 'none' || hiddenContent.style.display === '') {
-                        hiddenContent.style.display = 'inline';
-                        showMoreButton.textContent = 'Weniger';
-                    } else {
-                        hiddenContent.style.display = 'none';
-                        showMoreButton.textContent = 'Mehr';
-                    }
-                }
-
-                // Add event listeners for show more buttons
-                document.querySelectorAll('.show-more-btn').forEach(button => {
-                    button.addEventListener('click', function() {
-                        toggleContent(this);
-                    });
-                });
-
-                // Add event listeners for comment and new comment modals
-                document.querySelectorAll('[id^="commentBtn-"]').forEach(button => {
-                    button.addEventListener('click', function() {
-                        const postId = this.getAttribute('data-post-id');
-                        document.getElementById(`commentModal-${postId}`).style.display = 'block';
-                    });
-                });
-
-                document.querySelectorAll('[id^="newCommentBtn-"]').forEach(button => {
-                    button.addEventListener('click', function() {
-                        const postId = this.getAttribute('data-post-id');
-                        document.getElementById(`newCommentModal-${postId}`).style.display = 'block';
-                    });
-                });
-
-                // Add event listeners for closing modals
-                document.querySelectorAll('.close').forEach(button => {
-                    button.addEventListener('click', function() {
-                        this.closest('.modal').style.display = 'none';
-                    });
-                });
-
-                // Close modals when clicking outside of them
-                window.addEventListener('click', function(event) {
-                    if (event.target.classList.contains('modal')) {
-                        event.target.style.display = 'none';
-                    }
-                });
-            });
-        </script>
-
         <p class="card-text">
             {{ post.content|slice:":200" }}{% if post.content|length > 200 %}...{% endif %}
             {% if post.content|length > 200 %}
                 <span class="hidden-content-{{ post.id }}" style="display: none;">{{ post.content|slice:"200:" }}</span>
-                <span class="show-more-btn" data-post-id="{{ post.id }}">Mehr</span>
+                <span class="show-more-btn show-more-btn-{{ post.id }}" data-post-id="{{ post.id }}">Mehr</span>
             {% endif %}
         </p>
 
@@ -224,3 +175,66 @@
         </div>
     </div>
 </div>
+
+<script>
+    document.addEventListener('DOMContentLoaded', function() {
+        // Function to toggle content visibility
+        function toggleContent(postId) {
+            const hiddenContent = document.querySelector(`.hidden-content-${postId}`);
+            const showMoreButton = document.querySelector(`.show-more-btn-${postId}`);
+            if (hiddenContent.style.display === 'none' || hiddenContent.style.display === '') {
+                hiddenContent.style.display = 'inline';
+                showMoreButton.textContent = 'Weniger';
+            } else {
+                hiddenContent.style.display = 'none';
+                showMoreButton.textContent = 'Mehr';
+            }
+        }
+
+        // Add event listeners for show more buttons
+        document.querySelectorAll('[class^="show-more-btn"]').forEach(button => {
+            const postId = button.getAttribute('data-post-id');
+            button.removeEventListener('click', function() {
+                toggleContent(postId);
+            });
+            button.addEventListener('click', function() {
+                toggleContent(postId);
+            });
+        });
+
+        // Add event listeners for comment and new comment modals
+        document.querySelectorAll('[id^="commentBtn-"]').forEach(button => {
+            const postId = button.getAttribute('data-post-id');
+            button.removeEventListener('click', function() {
+                document.getElementById(`commentModal-${postId}`).style.display = 'block';
+            });
+            button.addEventListener('click', function() {
+                document.getElementById(`commentModal-${postId}`).style.display = 'block';
+            });
+        });
+
+        document.querySelectorAll('[id^="newCommentBtn-"]').forEach(button => {
+            const postId = button.getAttribute('data-post-id');
+            button.removeEventListener('click', function() {
+                document.getElementById(`newCommentModal-${postId}`).style.display = 'block';
+            });
+            button.addEventListener('click', function() {
+                document.getElementById(`newCommentModal-${postId}`).style.display = 'block';
+            });
+        });
+
+        // Add event listeners for closing modals
+        document.querySelectorAll('.close').forEach(button => {
+            button.addEventListener('click', function() {
+                this.closest('.modal').style.display = 'none';
+            });
+        });
+
+        // Close modals when clicking outside of them
+        window.addEventListener('click', function(event) {
+            if (event.target.classList.contains('modal')) {
+                event.target.style.display = 'none';
+            }
+        });
+    });
+</script>

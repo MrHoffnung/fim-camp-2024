@@ -172,9 +172,15 @@
                 {% if tab == 'bio' %}
                     <div class="profileContentText">
                         <span>{{ profile.user.email }}</span><br>
-                        <span>{{ profile.birth_date }}</span>
-                        <h2>Bio</h2>
-                        <p>{{ profile.bio }}</p>
+                        {% if profile.birth_date %}
+                            <span>{{ profile.birth_date }}</span><br>
+                        {% endif %}
+                        
+                        {% if profile.bio %}
+                            <p>{{ profile.bio }}</p>
+                        {% else %}
+                            <p>Keine Biographie vorhanden</p>
+                        {% endif %}
         
                         <div class="d-flex mt-2 gap-1">
                             {% if profile.user == request.user %}

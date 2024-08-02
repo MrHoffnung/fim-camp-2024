@@ -39,5 +39,4 @@ Data Science erforscht Technologien & Algorithmen um Wissen aus großen Datenque
 **Wichtig**: Daten sind per se nicht wertvoll sondern verursachen Kosten.
 
 ## Analyse digitaler Verhaltensdaten
-Beispiele für digitale Verhaltensdaten sind Mobilitätsdaten, Suchdaten (Nowcasting) & Soziale Medien (Emotionen).
-Bei der Analyse dieser extrahiert man z.B. Wörter aus Suchanfragen um z.B. den Ausbruch einer Grippe-Epidemie zu identifizieren.
+Beispiele für digitale Verhaltensdaten sind Mobilitätsdaten, Suchdaten (Nowcasting) & Soziale Medien (Emotionen). Bei der Analyse dieser extrahiert man z.B. Wörter aus Suchanfragen um z.B. den Ausbruch einer Grippe-Epidemie zu identifizieren.
