@@ -14,24 +14,22 @@
         <div class="row">
             <!-- Main content (posts) -->
             <div class="col-md-8">
-                {% if user.is_authenticated %}
-                    {% if only_followed and user.is_authenticated %}
-                        {% for post in followed_posts %}
-                            {% include "blog/post/post.html" with post=post profile=profile has_followed=post.has_followed %}
-                        {% endfor %}
-                    {% else %}
-                        {% for post in posts %}
-                            {% include "blog/post/post.html" with post=post profile=profile has_followed=post.has_followed %}
-                        {% endfor %}
-                    {% endif %}
-                    <div class="mt-2">
-                        {% if not only_followed %}
-                            <a class="btn btn-primary btn-sm" href="{% url 'index' %}?only_followed=True">Nur Posts von gefolgten Nutzern</a>
-                        {% else %}
-                            <a class="btn btn-primary btn-sm" href="{% url 'index' %}">Posts von allen Nutzern</a>
-                        {% endif %}
-                    </div>
+                {% if only_followed and user.is_authenticated %}
+                    {% for post in followed_posts %}
+                        {% include "blog/post/post.html" with post=post profile=profile has_followed=post.has_followed %}
+                    {% endfor %}
+                {% else %}
+                    {% for post in posts %}
+                        {% include "blog/post/post.html" with post=post profile=profile has_followed=post.has_followed %}
+                    {% endfor %}
                 {% endif %}
+                <div class="mt-2">
+                    {% if not only_followed %}
+                        <a class="btn btn-primary btn-sm" href="{% url 'index' %}?only_followed=True">Nur Posts von gefolgten Nutzern</a>
+                    {% else %}
+                        <a class="btn btn-primary btn-sm" href="{% url 'index' %}">Posts von allen Nutzern</a>
+                    {% endif %}
+                </div>
             </div>
             <!-- Sidebar (vertical list and chat) -->
             <div class="col-md-4">
